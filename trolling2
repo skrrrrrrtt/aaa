@@ -1,0 +1,135 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+-- Create the ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Create the Main Frame (Dropdown Container)
+local DropdownFrame = Instance.new("Frame")
+DropdownFrame.Size = UDim2.new(0.3, 0, 0.1, 0)
+DropdownFrame.Position = UDim2.new(0.35, 0, 0.4, 0)
+DropdownFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+DropdownFrame.BackgroundTransparency = 0.1
+DropdownFrame.BorderSizePixel = 0
+DropdownFrame.Parent = ScreenGui
+
+-- Add shadow effect to Main Frame
+local Shadow = Instance.new("Frame")
+Shadow.Size = UDim2.new(1.05, 0, 1.05, 0)
+Shadow.Position = UDim2.new(-0.025, 0, -0.025, 0)
+Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.BorderSizePixel = 0
+Shadow.BackgroundTransparency = 0.5
+Shadow.Parent = DropdownFrame
+Shadow.ZIndex = -1
+
+-- Rounded corners
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0.1, 0)
+UICorner.Parent = DropdownFrame
+
+-- Dropdown title button
+local DropdownButton = Instance.new("TextButton")
+DropdownButton.Size = UDim2.new(1, 0, 1, 0)
+DropdownButton.BackgroundTransparency = 0.2
+DropdownButton.Text = "Options"
+DropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+DropdownButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+DropdownButton.Font = Enum.Font.GothamBold
+DropdownButton.TextScaled = true
+DropdownButton.Parent = DropdownFrame
+
+-- Create a hidden panel for dropdown content
+local DropdownContent = Instance.new("Frame")
+DropdownContent.Size = UDim2.new(1, 0, 0, 0)  -- Initially hidden
+DropdownContent.Position = UDim2.new(0, 0, 1, 0)  -- Below the dropdown button
+DropdownContent.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+DropdownContent.BackgroundTransparency = 0.2
+DropdownContent.Parent = DropdownFrame
+DropdownContent.ClipsDescendants = true
+
+-- Rounded corners for dropdown content
+local UICornerContent = Instance.new("UICorner")
+UICornerContent.CornerRadius = UDim.new(0.1, 0)
+UICornerContent.Parent = DropdownContent
+
+-- Dropdown options (example buttons)
+for i = 1, 3 do
+    local Option = Instance.new("TextButton")
+    Option.Size = UDim2.new(1, 0, 0.2, 0)
+    Option.Position = UDim2.new(0, 0, 0.2 * (i - 1), 0)
+    Option.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Option.Text = "Option " .. i
+    Option.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Option.Font = Enum.Font.Gotham
+    Option.TextScaled = true
+    Option.Parent = DropdownContent
+
+    -- Button hover animation
+    Option.MouseEnter:Connect(function()
+        TweenService:Create(Option, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
+    end)
+    Option.MouseLeave:Connect(function()
+        TweenService:Create(Option, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+    end)
+end
+
+-- Dropdown animation function
+local dropdownOpen = false
+DropdownButton.MouseButton1Click:Connect(function()
+    dropdownOpen = not dropdownOpen
+    local targetSize = dropdownOpen and UDim2.new(1, 0, 0.6, 0) or UDim2.new(1, 0, 0, 0)
+    
+    -- Animate dropdown expansion/collapse
+    TweenService:Create(DropdownContent, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = targetSize}):Play()
+end)
+
+-- Add an exit button to close the GUI
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+CloseButton.Position = UDim2.new(0.9, 0, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.TextScaled = true
+CloseButton.Parent = DropdownFrame
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Make the main frame draggable
+local dragging, dragInput, dragStart, startPos
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    DropdownFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+DropdownFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = DropdownFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+DropdownFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateInput(input)
+    end
+end)
