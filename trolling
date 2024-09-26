@@ -1,0 +1,68 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local ButtonTemplate = Instance.new("TextButton")
+
+-- Set up the GUI
+ScreenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+Frame.Size = UDim2.new(0.5, 0, 0.6, 0)
+Frame.Position = UDim2.new(0.25, 0, 0.2, 0)
+Frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+Frame.BorderSizePixel = 0
+Frame.Parent = ScreenGui
+
+-- Function to create buttons
+local function createButton(text, position)
+    local button = ButtonTemplate:Clone()
+    button.Size = UDim2.new(0.8, 0, 0.15, 0)
+    button.Position = position
+    button.Text = text
+    button.BackgroundColor3 = Color3.new(0.1, 0.7, 0.1)
+    button.BorderSizePixel = 0
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Parent = Frame
+
+    -- Button animations
+    button.MouseEnter:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.new(0.1, 0.5, 0.1)}):Play()
+    end)
+    button.MouseLeave:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.new(0.1, 0.7, 0.1)}):Play()
+    end)
+
+    return button
+end
+
+-- Create buttons for various features
+local features = {
+    {text = "Confuse Players", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then p.Character.HumanoidRootPart.CFrame = CFrame.new(math.random(-50, 50), 10, math.random(-50, 50)) end end end},
+    {text = "Make Players Dance", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then local anim = Instance.new("Animation") anim.AnimationId = "rbxassetid://507771019" p.Character.Humanoid:LoadAnimation(anim):Play() end end end},
+    {text = "Funny Messages", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then local msg = Instance.new("Message", p) msg.Text = "Surprise! You've been trolled! 😂" wait(2) msg:Destroy() end end end},
+    {text = "Change Player Colors", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer and p.Character then p.Character.HumanoidRootPart.BrickColor = BrickColor.Random() end end end},
+    {text = "Teleport Everyone to Me", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then p.Character.HumanoidRootPart.CFrame = Players.LocalPlayer.Character.HumanoidRootPart.CFrame end end end},
+    {text = "Gravity Switch", func = function() workspace.Gravity = workspace.Gravity == 196.2 and 0 or 196.2 end},
+    {text = "Fake Game Over", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then p:Kick("Game Over! You lose!") end end end},
+    {text = "Force Field", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then local forceField = Instance.new("ForceField", p.Character) end end end},
+    {text = "Create Fake Coins", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then local coin = Instance.new("Part", workspace) coin.Size = Vector3.new(1, 1, 1) coin.Position = p.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0) coin.BrickColor = BrickColor.new("Gold") end end end},
+    {text = "Disco Mode", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then local disco = Instance.new("Part", workspace) disco.Size = Vector3.new(10, 0.1, 10) disco.Position = p.Character.HumanoidRootPart.Position disco.BrickColor = BrickColor.Random() disco.Material = Enum.Material.Neon end end end},
+    {text = "Invisibility for All", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer and p.Character then p.Character.HumanoidRootPart.Transparency = 1 end end end},
+    {text = "Soundboard Fun", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then local sound = Instance.new("Sound", p.Character) sound.SoundId = "rbxassetid://183198659" sound:Play() end end end},
+    {text = "Spawn Fake Items", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then local item = Instance.new("Part", workspace) item.Size = Vector3.new(1, 1, 1) item.Position = p.Character.HumanoidRootPart.Position item.BrickColor = BrickColor.Random() end end end},
+    {text = "Slow Motion", func = function() game:GetService("RunService").Stepped:Connect(function() wait(0.1) end) end},
+    {text = "Jump Scare", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer then local scare = Instance.new("Part", workspace) scare.Size = Vector3.new(10, 10, 10) scare.Position = p.Character.HumanoidRootPart.Position scare.BrickColor = BrickColor.new("Really red") end end end},
+    {text = "Invisible Wall", func = function() local wall = Instance.new("Part", workspace) wall.Size = Vector3.new(1, 10, 10) wall.Position = Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(10, 0, 0) wall.Anchored = true end},
+    {text = "Spin Players", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer and p.Character then p.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.pi, 0) end end end},
+    {text = "Fake Rain", func = function() for i = 1, 100 do local raindrop = Instance.new("Part", workspace) raindrop.Size = Vector3.new(0.1, 0.1, 0.1) raindrop.Position = Vector3.new(math.random(-50, 50), 50, math.random(-50, 50)) raindrop.BrickColor = BrickColor.new("Bright blue") raindrop.Anchored = true wait(0.1) end end},
+    {text = "Confetti", func = function() for i = 1, 50 do local confetti = Instance.new("Part", workspace) confetti.Size = Vector3.new(0.2, 0.2, 0.2) confetti.Position = Vector3.new(math.random(-50, 50), 50, math.random(-50, 50)) confetti.BrickColor = BrickColor.Random() confetti.Material = Enum.Material.Neon wait(0.1) end end},
+    {text = "Vanish", func = function() Players.LocalPlayer.Character.HumanoidRootPart.Transparency = 1 end},
+    {text = "Jump Boost", func = function() for _, p in pairs(Players:GetPlayers()) do if p ~= Players.LocalPlayer and p.Character then p.Character.Humanoid.JumpPower = 100 end end end},
+    {text = "Spawn Fake NPC", func = function() local npc = Instance.new("Model", workspace) local head = Instance.new("Part", npc) head.Size = Vector3.new(2, 2, 2) head.Position = Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(5, 0, 0) end},
+}
+
+-- Create all feature buttons
+for i, feature in ipairs(features) do
+    local button = createButton(feature.text, UDim2.new(0.1, 0, 0.1 + (0.15 * (i - 1)), 0))
+    button.MouseButton1Click:Connect(feature.func)
+end
