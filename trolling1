@@ -1,0 +1,41 @@
+local Players = game:GetService("Players")
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local TitleLabel = Instance.new("TextLabel")
+
+-- Set up the ScreenGui
+ScreenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Set up the main frame
+MainFrame.Size = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.Position = UDim2.new(0.25, 0, 0.25, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundTransparency = 0.15
+
+-- Set up the title label
+TitleLabel.Size = UDim2.new(1, 0, 0.2, 0)
+TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+TitleLabel.Text = "Welcome to My Cool GUI"
+TitleLabel.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+TitleLabel.BorderSizePixel = 0
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextScaled = true
+TitleLabel.Parent = MainFrame
+
+-- Optional: Add a shadow effect
+local Shadow = Instance.new("Frame")
+Shadow.Size = UDim2.new(1.05, 0, 1.05, 0)
+Shadow.Position = UDim2.new(-0.025, 0, -0.025, 0)
+Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.BorderSizePixel = 0
+Shadow.Parent = MainFrame
+Shadow.BackgroundTransparency = 0.5
+Shadow.ZIndex = -1 -- Place the shadow behind the main frame
+
+-- Optional: Add rounded corners
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0.1, 0)
+UICorner.Parent = MainFrame
