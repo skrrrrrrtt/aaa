@@ -1,0 +1,127 @@
+local TweenService = game:GetService("TweenService")
+
+-- Create GUI Elements
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.Name = "RobberyStatusGui"
+
+local frame = Instance.new("Frame")
+frame.Parent = screenGui
+frame.Size = UDim2.new(0, 300, 0, 400)
+frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.3
+
+-- Make the frame draggable
+local isDragging = false
+local dragInput, dragStart, startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	local newPosition = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	frame.Position = newPosition
+end
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		isDragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				isDragging = false
+			end
+		end)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if input == dragInput and isDragging then
+		update(input)
+	end
+end)
+
+-- Add corner UI for a better design
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
+
+-- Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Parent = frame
+titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Robbery Status"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBold
+
+-- Status Labels Function
+local function createStatusLabel(parent, text, isOpen)
+	local statusLabel = Instance.new("TextLabel")
+	statusLabel.Parent = parent
+	statusLabel.Size = UDim2.new(1, 0, 0, 30)
+	statusLabel.BackgroundTransparency = 1
+	statusLabel.Text = text
+	statusLabel.TextColor3 = isOpen and Color3.fromRGB(15, 180, 85) or Color3.fromRGB(234, 36, 36)
+	statusLabel.TextScaled = true
+	statusLabel.Font = Enum.Font.Gotham
+	return statusLabel
+end
+
+-- Panel to hold status labels
+local statusPanel = Instance.new("Frame")
+statusPanel.Parent = frame
+statusPanel.Size = UDim2.new(1, -20, 1, -50)
+statusPanel.Position = UDim2.new(0, 10, 0, 40)
+statusPanel.BackgroundTransparency = 1
+
+-- Status Labels
+local robberyStates = {
+	Bank = true, -- Example: Replace with actual states
+	Jewelry = false,
+	Museum = true,
+	PowerPlant = false,
+	Tomb = true,
+	TrainPassenger = false,
+	TrainCargo = true,
+	CargoPlane = false,
+	CargoShip = true,
+	MoneyTruck = false,
+	Donut = true,
+	Gas = true
+}
+
+local statusLabels = {}
+statusLabels.Bank = createStatusLabel(statusPanel, "Bank", robberyStates.Bank)
+statusLabels.Jewelry = createStatusLabel(statusPanel, "Jewelry", robberyStates.Jewelry)
+statusLabels.Museum = createStatusLabel(statusPanel, "Museum", robberyStates.Museum)
+statusLabels.PowerPlant = createStatusLabel(statusPanel, "Power Plant", robberyStates.PowerPlant)
+statusLabels.Tomb = createStatusLabel(statusPanel, "Tomb", robberyStates.Tomb)
+statusLabels.TrainPassenger = createStatusLabel(statusPanel, "Passenger Train", robberyStates.TrainPassenger)
+statusLabels.TrainCargo = createStatusLabel(statusPanel, "Cargo Train", robberyStates.TrainCargo)
+statusLabels.CargoPlane = createStatusLabel(statusPanel, "Cargo Plane", robberyStates.CargoPlane)
+statusLabels.CargoShip = createStatusLabel(statusPanel, "Cargo Ship", robberyStates.CargoShip)
+statusLabels.MoneyTruck = createStatusLabel(statusPanel, "Money Truck", robberyStates.MoneyTruck)
+statusLabels.Donut = createStatusLabel(statusPanel, "Donut Store", robberyStates.Donut)
+statusLabels.Gas = createStatusLabel(statusPanel, "Gas Station", robberyStates.Gas)
+
+-- Update statuses
+local function updateStatus()
+	for robbery, label in pairs(statusLabels) do
+		local isOpen = robberyStates[robbery]
+		label.TextColor3 = isOpen and Color3.fromRGB(15, 180, 85) or Color3.fromRGB(234, 36, 36)
+		label.Text = robbery .. " - " .. (isOpen and "Open" or "Closed")
+	end
+end
+
+-- Call updateStatus() whenever you need to refresh the labels
+updateStatus()
