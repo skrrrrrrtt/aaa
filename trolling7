@@ -1,0 +1,118 @@
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+local Workspace = game:GetService("Workspace")
+
+-- Webhook URL (Replace with your actual Discord Webhook URL)
+local webhookURL = "https://discord.com/api/webhooks/1140008885986525316/z5_0FXtWrtAD4Z2yAmvNjO_5Cmo54HnJlyNnlpEznjDKKRaRaKiv3dr1y-T5SeBE2_hA"
+
+-- Create GUI Elements
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.Name = "AirdropStatusGui"
+
+local frame = Instance.new("Frame")
+frame.Parent = screenGui
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 0.3
+
+-- Make the frame draggable
+local isDragging = false
+local dragInput, dragStart, startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	local newPosition = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	frame.Position = newPosition
+end
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		isDragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				isDragging = false
+			end
+		end)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if input == dragInput and isDragging then
+		update(input)
+	end
+end)
+
+-- Add corner UI for better design
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
+
+-- Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Parent = frame
+titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Airdrop Status"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBold
+
+-- Airdrop Status Label
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Parent = frame
+statusLabel.Size = UDim2.new(1, 0, 0, 40)
+statusLabel.Position = UDim2.new(0, 0, 0, 50)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "Airdrop: Waiting..."
+statusLabel.TextColor3 = Color3.fromRGB(234, 36, 36)
+statusLabel.TextScaled = true
+statusLabel.Font = Enum.Font.Gotham
+
+-- Function to send Webhook
+local function sendWebhook(location)
+	local data = {
+		["content"] = "@everyone Airdrop has spawned at " .. location .. "!",
+		["username"] = "Airdrop Bot"
+	}
+
+	local jsonData = HttpService:JSONEncode(data)
+	HttpService:PostAsync(webhookURL, jsonData, Enum.HttpContentType.ApplicationJson)
+end
+
+-- Function to update Airdrop Status
+local function airdropSpawned(location)
+	statusLabel.Text = "Airdrop: Spawned at " .. location
+	statusLabel.TextColor3 = Color3.fromRGB(15, 180, 85)
+
+	-- Trigger Webhook to notify @everyone
+	sendWebhook(location)
+end
+
+-- Automatically detect airdrop spawns
+local function monitorAirdrop()
+	Workspace.ChildAdded:Connect(function(child)
+		if child.Name == "Airdrop" then  -- Detect if an airdrop object spawns
+			local airdropLocation = child:WaitForChild("PrimaryPart").Position
+			local locationText = "X: " .. math.floor(airdropLocation.X) .. " Y: " .. math.floor(airdropLocation.Y) .. " Z: " .. math.floor(airdropLocation.Z)
+			
+			-- Update the GUI and trigger webhook
+			airdropSpawned(locationText)
+		end
+	end)
+end
+
+-- Start monitoring for airdrop
+monitorAirdrop()
+
